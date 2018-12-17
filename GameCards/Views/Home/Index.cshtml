@@ -1,0 +1,128 @@
+﻿@{
+    ViewBag.Title = "My Game List";
+}
+
+<head>
+    <script type="text/javascript">
+        $(function () {
+            var game1 = {
+                title: 'Bioshock',
+                genre: 'Shooter',
+                platform: 'XBox 360',
+                releaseDate: '8/21/2007',
+                developer: 'Irrational Games',
+                publisher: '2K Games',
+                imageURL: 'https://upload.wikimedia.org/wikipedia/en/thumb/6/6d/BioShock_cover.jpg/220px-BioShock_cover.jpg'
+            };
+            var game2 = {
+                title: 'The Legend of Zelda: Ocarina of Time',
+                genre: 'RPG',
+                platform: 'N64',
+                releaseDate: '11/21/1998',
+                developer: 'Nintendo',
+                publisher: 'Nintendo',
+                imageURL: 'https://cdn-images-1.medium.com/max/1600/1*n2iccNMASW983gg-ZmMdTw.jpeg'
+            };
+            var game3 = {
+                title: 'Devil May Cry',
+                genre: 'Hack-n-Slash',
+                platform: 'PS2',
+                releaseDate: '8/23/2001',
+                developer: 'Capcom',
+                publisher: 'Capcom',
+                imageURL: 'https://upload.wikimedia.org/wikipedia/en/thumb/1/1e/DMC1FrontCover.jpg/220px-DMC1FrontCover.jpg'
+            };
+            var game4 = {
+                title: 'Comix Zone',
+                genre: 'Beat-em-Up',
+                platform: 'Sega Genesis',
+                releaseDate: '8/2/1995',
+                developer: 'Sega',
+                publisher: 'Sega',
+                imageURL: 'https://upload.wikimedia.org/wikipedia/en/thumb/0/0e/Comix_Zone_Coverart.png/220px-Comix_Zone_Coverart.png'
+            };
+            var game5 = {
+                title: 'To the Moon',
+                genre: 'Visual Novel',
+                platform: 'PC',
+                releaseDate: '9/1/2011',
+                developer: 'Freebird Games',
+                publisher: 'Freebird Games',
+                imageURL: 'https://steamcdn-a.akamaihd.net/steam/apps/206440/capsule_616x353.jpg?t=1519836062'
+            };
+            function gamesViewModel() {
+                var self = this;
+                self.gamesList = ko.observableArray([game1, game2, game3, game4, game5]);
+                self.gameToAdd = ko.observable({
+                    title: 'Mass Effect',
+                    genre: 'RPG',
+                    platform: 'PC',
+                    releaseDate: '11/20/2007',
+                    developer: 'BioWare',
+                    publisher: 'EA',
+                    imageURL: 'https://steamcdn-a.akamaihd.net/steam/apps/17460/header.jpg?t=1447351599'
+                });
+                self.addGame = function () {
+                    self.gamesList.push(self.gameToAdd);
+                };
+                self.removeGame = function (gameToRemove) {
+                    self.gamesList.remove(gameToRemove);
+                    //var gameIndex = self.gamesList.indexOf(gameToRemove);
+                    //self.gamesList.splice(gameIndex, 1);
+                };
+            }
+            ko.applyBindings(new gamesViewModel);
+        });
+
+    </script>
+</head>
+<div class="jumbotron">
+    <h1>TOP 5 GAMES</h1>
+</div>
+
+<div class="row">
+    <h4>Games</h4>
+    <div class="card-columns" data-bind="foreach: gamesList">
+        <div class="card">
+            <a data-bind="attr: {href: imageURL}" target="_blank">
+                <img class="card-img-top" data-bind="attr: {src: imageURL}" />
+            </a>
+            <div class="card-body">
+                <h5 class="card-title" data-bind="text: title"></h5>
+                <div class="card-text">
+                    <div>
+                        <span>Genre: </span>
+                        <span data-bind="text: genre" />
+                    </div>
+                    <div>
+                        <span>Platform: </span>
+                        <span data-bind="text: platform" />
+                    </div>
+                    <div>
+                        <span>Release Date: </span>
+                        <span data-bind="text: releaseDate" />
+                    </div>
+                    <div>
+                        <span>Developer: </span>
+                        <span data-bind="text: developer" />
+                    </div>
+                    <div>
+                        <span>Publisher: </span>
+                        <span data-bind="text: publisher" />
+                    </div>
+                </div>
+                <button class="btn btn-danger" data-bind="click: $parent.removeGame">-Remove</button>
+            </div>
+        </div>
+    </div>
+    <div>
+        <span>Title: <input type="text" placeholder="Title" data-bind="value: gameToAdd.title" /></span>
+        <input type="text" placeholder="Platform" data-bind="value: gameToAdd.title" />
+        <input type="text" placeholder="Title" data-bind="value: gameToAdd.title" />
+        <input type="text" placeholder="Title" data-bind="value: gameToAdd.title" />
+        <input type="text" placeholder="Title" data-bind="value: gameToAdd.title" />
+        <input type="file" placeholder="Title" data-bind="value: gameToAdd.title" />
+
+    </div>
+    <button data-bind="click: addGame">+Add</button>
+</div>
