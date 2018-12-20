@@ -4,125 +4,252 @@
 
 <head>
     <script type="text/javascript">
+        function lookUpGames() {
+            var searchTerms = JSON.stringify({ search : $('#txtSearch').val() });
+            $.ajax({
+                url: '/Home/LookUpGames',
+                data: searchTerms,
+                dataType: 'json',
+                contentType: 'application/json; charset=utf-8',
+                type: 'POST',
+                success: function (response) {
+                    var res = response;
+                },
+                failure: function () {
+
+                },
+                error: function () {
+
+                }
+            });
+        };
         $(function () {
-            var game1 = {
-                title: 'Bioshock',
-                genre: 'Shooter',
-                platform: 'XBox 360',
-                releaseDate: '8/21/2007',
-                developer: 'Irrational Games',
-                publisher: '2K Games',
-                imageURL: 'https://upload.wikimedia.org/wikipedia/en/thumb/6/6d/BioShock_cover.jpg/220px-BioShock_cover.jpg'
+            function warning() {
+                $('#modalTitle').removeClass('text-danger', 'text-success');
+                $('#modalTitle').addClass('text-warning');
+                $('#modalBodyText').removeClass('text-danger', 'text-success');
+                $('#modalBodyText').addClass('text-warning');
+                $('#modalSaved').modal('show');
             };
-            var game2 = {
-                title: 'The Legend of Zelda: Ocarina of Time',
-                genre: 'RPG',
-                platform: 'N64',
-                releaseDate: '11/21/1998',
-                developer: 'Nintendo',
-                publisher: 'Nintendo',
-                imageURL: 'https://cdn-images-1.medium.com/max/1600/1*n2iccNMASW983gg-ZmMdTw.jpeg'
+            function danger() {
+                $('#modalTitle').removeClass('text-warning', 'text-success');
+                $('#modalTitle').addClass('text-danger');
+                $('#modalBodyText').removeClass('text-warning', 'text-success');
+                $('#modalBodyText').addClass('text-danger');
+                $('#modalSaved').modal('show');
             };
-            var game3 = {
-                title: 'Devil May Cry',
-                genre: 'Hack-n-Slash',
-                platform: 'PS2',
-                releaseDate: '8/23/2001',
-                developer: 'Capcom',
-                publisher: 'Capcom',
-                imageURL: 'https://upload.wikimedia.org/wikipedia/en/thumb/1/1e/DMC1FrontCover.jpg/220px-DMC1FrontCover.jpg'
-            };
-            var game4 = {
-                title: 'Comix Zone',
-                genre: 'Beat-em-Up',
-                platform: 'Sega Genesis',
-                releaseDate: '8/2/1995',
-                developer: 'Sega',
-                publisher: 'Sega',
-                imageURL: 'https://upload.wikimedia.org/wikipedia/en/thumb/0/0e/Comix_Zone_Coverart.png/220px-Comix_Zone_Coverart.png'
-            };
-            var game5 = {
-                title: 'To the Moon',
-                genre: 'Visual Novel',
-                platform: 'PC',
-                releaseDate: '9/1/2011',
-                developer: 'Freebird Games',
-                publisher: 'Freebird Games',
-                imageURL: 'https://steamcdn-a.akamaihd.net/steam/apps/206440/capsule_616x353.jpg?t=1519836062'
+            function success() {
+                $('#modalTitle').removeClass('text-warning', 'text-danger');
+                $('#modalTitle').addClass('text-success');
+                $('#modalBodyText').removeClass('text-warning', 'text-danger');
+                $('#modalBodyText').addClass('text-success');
+                $('#modalSaved').modal('show');
             };
             function gamesViewModel() {
                 var self = this;
-                self.gamesList = ko.observableArray([game1, game2, game3, game4, game5]);
+                self.gamesList = ko.observableArray();
                 self.gameToAdd = ko.observable({
-                    title: 'Mass Effect',
-                    genre: 'RPG',
-                    platform: 'PC',
-                    releaseDate: '11/20/2007',
-                    developer: 'BioWare',
-                    publisher: 'EA',
-                    imageURL: 'https://steamcdn-a.akamaihd.net/steam/apps/17460/header.jpg?t=1447351599'
+                    Title: '',
+                    Genre: '',
+                    Platform: '',
+                    ReleaseDate: '',
+                    Developer: '',
+                    Publisher: '',
+                    BoxArtURL: ''
                 });
                 self.addGame = function () {
-                    self.gamesList.push(self.gameToAdd);
+                    if (self.gamesList().length >= 10) {
+                        $('#modalTitle').text('TOO MANY GAMES');
+                        $('#modalImage').attr('src', '/Images/Link.jpg');
+                        $('#modalBodyText').text('You can only have a maximum of 5 games in your list.');
+                        warning();
+                    }
+                    else {
+                        if ($('#txtTitle').text() == "" ||
+                            $('#txtGenre').text() == "" ||
+                            $('#txtPlatform').text() == "" ||
+                            $('#txtReleaseDate').text() == "" ||
+                            $('#txtDeveloper').text() == "" ||
+                            $('txtPublisher').text() == "") {
+                            $('#modalTitle').text('ALL FIELDS REQUIRED!');
+                            $('#modalImage').attr('src', '/Images/Sonic.jpg');
+                            $('#modalBodyText').text('Come on, now. You can\t just leave fields blank.');
+                            warning();
+                        }
+                        else {
+                            var game = {
+                                Title: self.gameToAdd().Title,
+                                Genre: self.gameToAdd().Genre,
+                                Platform: self.gameToAdd().Platform,
+                                ReleaseDate: self.gameToAdd().ReleaseDate,
+                                Developer: self.gameToAdd().Developer,
+                                Publisher: self.gameToAdd().Publisher,
+                                BoxArtURL: self.gameToAdd().BoxArtURL
+                            };
+                            self.gamesList.push(game);
+                            $('#txtTitle').val('');
+                            $('#txtGenre').val('');
+                            $('#txtPlatform').val('');
+                            $('#txtReleaseDate').val('');
+                            $('#txtDeveloper').val('');
+                            $('#txtPublisher').val('');
+                            $('#txtBoxArtURL').val('');
+                        }
+                    }
                 };
                 self.removeGame = function (gameToRemove) {
                     self.gamesList.remove(gameToRemove);
-                    //var gameIndex = self.gamesList.indexOf(gameToRemove);
-                    //self.gamesList.splice(gameIndex, 1);
                 };
-            }
+                self.saveGameList = function () {
+                    var listOfGames = ko.toJSON(self.gamesList);
+                    $.ajax({
+                        url: '/Home/SaveGameList',
+                        data: listOfGames,
+                        dataType: 'json',
+                        contentType: 'application/json; charset=utf-8',
+                        type: 'POST',
+                        success: function (response) {
+                            if (response.result == true) {
+                                $('#modalTitle').text('GAME LIST SAVED!');
+                                $('#modalImage').attr('src', '/Images/Mario.jpg');
+                                $('#modalBodyText').text('Your game list has saved successfully.');
+                                success();
+                            }
+                            else {
+                                $('#modalTitle').text('GAME LIST NOT SAVED!');
+                                $('#modalImage').attr('src', '/Images/Luigi.jpg');
+                                $('#modalBodyText').text('DATABASE ERROR: GAME LIST SAVE FAILED!');
+                                danger();
+                            }
+                        },
+                        failure: function () {
+                            $('#modalTitle').text('GAME LIST NOT SAVED!');
+                            $('#modalImage').attr('src', '/Images/Luigi.jpg');
+                            $('#modalBodyText').text('SERVER ERROR: GAME LIST DID NOT REACH THE SERVER.');
+                            danger();
+                        },
+                        error: function () {
+                            $('#modalTitle').text('GAME LIST NOT SAVED!');
+                            $('#modalImage').attr('src', '/Images/Luigi.jpg');
+                            $('#modalBodyText').text('ERROR: GAME LIST NOT SAVED!');
+                            danger();
+                        }
+                    });
+                };
+            };
             ko.applyBindings(new gamesViewModel);
         });
 
     </script>
 </head>
-<div class="jumbotron">
-    <h1>TOP 5 GAMES</h1>
-</div>
+<body>
+    <div class="jumbotron">
+        <h1>TOP 10 GAMES</h1>
+    </div>
 
-<div class="row">
-    <h4>Games</h4>
-    <div class="card-columns" data-bind="foreach: gamesList">
-        <div class="card">
-            <a data-bind="attr: {href: imageURL}" target="_blank">
-                <img class="card-img-top" data-bind="attr: {src: imageURL}" />
-            </a>
-            <div class="card-body">
-                <h5 class="card-title" data-bind="text: title"></h5>
-                <div class="card-text">
-                    <div>
-                        <span>Genre: </span>
-                        <span data-bind="text: genre" />
+    <div>
+        <h4>Games</h4>
+        <div class="card-columns" data-bind="foreach: gamesList">
+            <div class="card">
+                <a data-bind="attr: {href: BoxArtURL}" target="_blank">
+                    <img class="card-img-top" data-bind="attr: {src: BoxArtURL}" />
+                </a>
+                <div class="card-body">
+                    <h5 class="card-title" data-bind="text: Title"></h5>
+                    <div class="card-text">
+                        <div>
+                            <span>Genre: </span>
+                            <span data-bind="text: Genre" />
+                        </div>
+                        <div>
+                            <span>Platform: </span>
+                            <span data-bind="text: Platform" />
+                        </div>
+                        <div>
+                            <span>Release Date: </span>
+                            <span data-bind="text: ReleaseDate" />
+                        </div>
+                        <div>
+                            <span>Developer: </span>
+                            <span data-bind="text: Developer" />
+                        </div>
+                        <div>
+                            <span>Publisher: </span>
+                            <span data-bind="text: Publisher" />
+                        </div>
                     </div>
-                    <div>
-                        <span>Platform: </span>
-                        <span data-bind="text: platform" />
-                    </div>
-                    <div>
-                        <span>Release Date: </span>
-                        <span data-bind="text: releaseDate" />
-                    </div>
-                    <div>
-                        <span>Developer: </span>
-                        <span data-bind="text: developer" />
-                    </div>
-                    <div>
-                        <span>Publisher: </span>
-                        <span data-bind="text: publisher" />
-                    </div>
+                    <button class="btn btn-danger" data-bind="click: $parent.removeGame">-Remove</button>
                 </div>
-                <button class="btn btn-danger" data-bind="click: $parent.removeGame">-Remove</button>
+            </div>
+        </div>
+        <div>
+            <br /><br />
+            <label id="lblAddGame" class="alert-info form-control d-flex justify-content-center">Add a New Game</label>
+            <br />
+            <div class="row">
+                <span class="col-2">Search: </span>
+                <input id="txtSearch" type="text" class="col-3 form-control" />
+                <button id="btnSearch" class="btn btn-primary col-1" onclick="lookUpGames()">Search</button>
+            </div>
+            <br />
+            <div class="row">
+                <span class="col-2">Title: </span>
+                <input id="txtTitle" type="text" class="col-3 form-control" data-bind="value: gameToAdd().Title" />
+            </div>
+            <br />
+            <div class="row">
+                <span class="col-2">Genre: </span>
+                <input id="txtGenre" type="text" class="col-3 form-control" data-bind="value: gameToAdd().Genre" />
+            </div>
+            <br />
+            <div class="row">
+                <span class="col-2">Platform: </span>
+                <input id="txtPlatform" type="text" class="col-3 form-control" data-bind="value: gameToAdd().Platform" />
+            </div>
+            <br />
+            <div class="row">
+                <span class="col-2">Release Date: </span>
+                <input id="txtReleaseDate" type="text" class="col-3 form-control" data-bind="value: gameToAdd().ReleaseDate" />
+            </div>
+            <br />
+            <div class="row">
+                <span class="col-2">Developer: </span>
+                <input id="txtDeveloper" type="text" class="col-3 form-control" data-bind="value: gameToAdd().Developer" />
+            </div>
+            <br />
+            <div class="row">
+                <span class="col-2">Publisher: </span>
+                <input id="txtPublisher" type="text" class="col-3 form-control" data-bind="value: gameToAdd().Publisher" />
+            </div>
+            <br />
+            <div class="row">
+                <span class="col-2">Box Art URL: </span>
+                <input id="txtBoxArtURL" type="text" class="col-3 form-control" data-bind="value: gameToAdd().BoxArtURL" />
+            </div>
+            <br />
+            <div class="row">
+                <div class="d-flex justify-content-center">
+                    <button class="btn btn-primary ml-3" data-bind="click: addGame">+Add</button>
+                    <button class="btn btn-success ml-5" data-bind="click: saveGameList">Save Game List</button>
+                </div>
             </div>
         </div>
     </div>
-    <div>
-        <span>Title: <input type="text" placeholder="Title" data-bind="value: gameToAdd.title" /></span>
-        <input type="text" placeholder="Platform" data-bind="value: gameToAdd.title" />
-        <input type="text" placeholder="Title" data-bind="value: gameToAdd.title" />
-        <input type="text" placeholder="Title" data-bind="value: gameToAdd.title" />
-        <input type="text" placeholder="Title" data-bind="value: gameToAdd.title" />
-        <input type="file" placeholder="Title" data-bind="value: gameToAdd.title" />
-
+    <div id="modalSaved" class="modal modal-lg-centered" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content bg-dark">
+                <div class="modal-header">
+                    <h1 id="modalTitle" class="modal-title centered"></h1>
+                </div>
+                <div class="modal-body">
+                    <img id="modalImage" class="centered" height="400" />
+                    <br />
+                    <h2 id="modalBodyText" class="text-center"></h2>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary centered" data-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
     </div>
-    <button data-bind="click: addGame">+Add</button>
-</div>
+</body>

@@ -1,4 +1,5 @@
 ﻿body {
+    background-color:gray;
     padding-top: 50px;
     padding-bottom: 20px;
 }
@@ -21,4 +22,14 @@ input,
 select,
 textarea {
     max-width: 280px;
+}
+
+.col-centered{
+    float:none;
+    margin: 0 auto;
+}
+
+.centered {
+    display: block;
+    margin: auto;
 }

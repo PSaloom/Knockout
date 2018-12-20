@@ -22,7 +22,7 @@ namespace GameCards.Models
         {
             get
             {
-                _releaseDay = Convert.ToInt32(ReleaseDate.Date);
+                _releaseDay = ReleaseDate.Day;
                 return _releaseDay;
             }
         }
